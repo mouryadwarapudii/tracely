@@ -45,7 +45,8 @@ pip install chdb           # embedded ClickHouse used as a local stand-in
 **Send data**
 
 ```bash
-pip install -e sdk/python
+git clone https://github.com/mouryadwarapudii/tracely-python
+pip install -e tracely-python
 ```
 
 ```python
@@ -65,8 +66,7 @@ cd src/client && TRACELY_API_KEY=tr_... npm run seed
 ```
 tracely/
 ├── src/client/        Dashboard, ingest endpoint, API, alert evaluator (Next.js + TypeScript)
-├── sdk/python/        Python SDK
-├── sdk/typescript/    Planned
+├── sdk/               SDK notes. The Python SDK lives in its own repository (tracely-python)
 ├── examples/          Runnable sample apps
 ├── docs/              Documentation site content
 ├── assets/            OpenTelemetry Collector config
@@ -86,7 +86,7 @@ Version 0.1, an MVP. The features above work end to end and are covered by tests
 
 ```bash
 cd src/client && npm run typecheck && npm test
-pip install -e "sdk/python[dev]" && pytest sdk/python
+# SDK tests run in the tracely-python repository: pip install -e ".[dev]" && pytest
 ```
 
 ## License

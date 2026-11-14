@@ -3,7 +3,8 @@
 Each example is a single script. They need a running Tracely instance and an API key from **Settings**.
 
 ```bash
-pip install -e sdk/python          # from the repository root
+git clone https://github.com/mouryadwarapudii/tracely-python
+pip install -e tracely-python      # run next to this repository
 export TRACELY_API_KEY=tr_...
 export TRACELY_ENDPOINT=http://localhost:3000
 ```

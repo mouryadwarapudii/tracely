@@ -7,7 +7,9 @@ Requirements: Node 22 or newer, Python 3.9 or newer.
 ```bash
 pip install chdb
 ./scripts/dev.sh                    # ClickHouse stand-in on :8123, dashboard on :3000
-pip install -e "sdk/python[dev]"
+# SDK work happens in its own repository
+git clone https://github.com/mouryadwarapudii/tracely-python
+pip install -e "tracely-python[dev]"
 ```
 
 Create the owner account in the browser, create an API key under Settings, then load demo data with `TRACELY_API_KEY=tr_... npm run seed` from `src/client`.
@@ -16,7 +18,7 @@ Create the owner account in the browser, create an API key under Settings, then 
 
 ```bash
 cd src/client && npm run typecheck && npm test && npm run build
-pytest sdk/python
+(cd ../../tracely-python && pytest)
 ```
 
 ## Conventions

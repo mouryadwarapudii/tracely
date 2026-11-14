@@ -43,8 +43,11 @@ npm run typecheck
 npm test
 npm run build
 
-pip install -e "../../sdk/python[dev]"
-pytest ../../sdk/python
+# the Python SDK is a separate repository
+git clone https://github.com/mouryadwarapudii/tracely-python
+cd tracely-python
+pip install -e ".[dev]"
+pytest
 ```
 
 ## Where things are
