@@ -158,9 +158,9 @@ function ScopeControls({ environments }: { environments: string[] }) {
 
 function ThemeToggle() {
   const [dark, setDark] = useState(false);
+  // Light is the default; dark applies only when the user has turned it on.
   useEffect(() => {
-    const stamped = document.documentElement.dataset.theme;
-    setDark(stamped ? stamped === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches);
+    setDark(document.documentElement.dataset.theme === "dark");
   }, []);
   const toggle = () => {
     const next = dark ? "light" : "dark";

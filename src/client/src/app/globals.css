@@ -3,7 +3,7 @@
 @import "@fontsource/ibm-plex-mono/400.css";
 @import "@fontsource/ibm-plex-mono/500.css";
 
-/* Design tokens. Light is the default; dark applies from the OS setting or the toggle (data-theme wins both ways). */
+/* Design tokens. Light is the default; dark applies only when the user turns it on (data-theme="dark"). */
 :root {
   color-scheme: light;
   --bg: #f3f4f7;
@@ -34,18 +34,6 @@
   --s7: #6250d6;
   --s-other: #a3aab7;
   --grid: #e6e8ed;
-}
-@media (prefers-color-scheme: dark) {
-  :root:where(:not([data-theme="light"])) {
-    color-scheme: dark;
-    --bg: #0e1117; --panel: #161a22; --sunken: #1c212b; --line: #272d39; --line-strong: #3a4250;
-    --ink: #eceef3; --ink-2: #a9b1c0; --ink-3: #7c8596;
-    --accent: #9a8fff; --accent-ink: #0e1117; --accent-soft: #25224d;
-    --good-ink: #36c236; --warn-ink: #fab219; --critical: #e66767;
-    --critical-soft: #3a1d1f; --warn-soft: #3a2e12; --good-soft: #15301a;
-    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s7: #9085e9; --s-other: #5b6474;
-    --grid: #232935;
-  }
 }
 :root[data-theme="dark"] {
   color-scheme: dark;
