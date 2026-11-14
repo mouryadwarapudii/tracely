@@ -1,0 +1,52 @@
+---
+title: Architecture
+description: The components, how data moves through them, and the trade-offs behind the design.
+---
+
+## Components
+
+```
+ your app ──(OTLP/HTTP: protobuf or JSON)──▶ ┌─────────────────────────────┐
+  Tracely SDK or any OpenTelemetry SDK       │  Tracely app  (src/client)  │
+                                             │                             │
+                                             │  ingest   /v1/traces        │──▶ ClickHouse
+ browser ───────────────────────────────────▶│  dashboard pages            │     spans table
+                                             │  API      /api/v1/*         │
+ Slack / webhook ◀───────────────────────────│  alert evaluator (5 min)    │──▶ SQLite
+                                             └─────────────────────────────┘     users, keys, budgets,
+                                                                                 channels, prompts
+```
+
+| Component | Technology | Role |
+|---|---|---|
+| App | Next.js 16, React 19, TypeScript | Ingest endpoint, dashboard, REST API, and alert evaluator in one process |
+| Telemetry store | ClickHouse | One `spans` table, partitioned by day, with a retention TTL |
+| Metadata store | SQLite (`node:sqlite`) | Accounts, API key hashes, budgets, alert channels and history, prompts |
+| SDK | Python, built on the OpenTelemetry SDK | Patches LLM client libraries and exports OTLP |
+
+## Ingest path
+
+1. The app receives `POST /v1/traces` and resolves the project from the API key.
+2. The body is decoded (protobuf or JSON, optionally gzip).
+3. Each span is flattened into one row. GenAI attributes become typed columns; cost is computed if the span did not report one.
+4. Rows are inserted into ClickHouse in one batch per request.
+
+## Query path
+
+Dashboard pages are server components. Each page builds its queries with bound parameters, runs them in parallel against ClickHouse, and renders. There is no cache layer: ClickHouse answers aggregate queries over the `(project_id, start_time, trace_id)` sort key directly.
+
+## Analysis features
+
+- **Anomalies** compare each hour with the previous seven days using a median and MAD, then attribute the excess to a model, service, or user. See [Anomalies](/latest/tracely/anomalies).
+- **Optimizer** runs five aggregate queries over the selected range and scales the findings to a month. See [Optimizer](/latest/tracely/optimizer).
+- **Alerts** are evaluated by a timer in the app process every five minutes, and on demand.
+
+## Trade-offs in this version
+
+| Choice | Why | When to revisit |
+|---|---|---|
+| One process for ingest and UI | Simplest thing to deploy and operate | Sustained high volume: split ingest out and put a queue in front of ClickHouse |
+| Synchronous insert per request | No extra infrastructure | Many small batches per second: enable ClickHouse async inserts or batch in a queue |
+| SQLite for metadata | Zero configuration, one file to back up | More than one app replica: move metadata to Postgres |
+| OTLP over HTTP only | Covers every OpenTelemetry SDK | gRPC-only senders: put an OpenTelemetry Collector in front (`assets/otel-collector-config.yaml`) |
+| One project per deployment | Keeps the first version small | Multiple teams: the schema already carries `project_id` everywhere |

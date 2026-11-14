@@ -1,0 +1,33 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Tracely",
+  "colors": { "primary": "#5746E8", "light": "#9A8FFF", "dark": "#5746E8" },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          { "group": "Get started", "pages": ["latest/introduction", "latest/quickstart", "latest/concepts", "latest/architecture"] },
+          { "group": "Observe", "pages": ["latest/tracely/traces", "latest/tracely/sessions"] },
+          { "group": "Spend", "pages": ["latest/tracely/costs", "latest/tracely/optimizer", "latest/tracely/budgets"] },
+          { "group": "Reliability", "pages": ["latest/tracely/anomalies", "latest/tracely/alerts"] },
+          { "group": "Build", "pages": ["latest/tracely/prompts"] },
+          { "group": "Self-hosting", "pages": ["latest/self-hosting/docker", "latest/self-hosting/configuration", "latest/self-hosting/development"] },
+          { "group": "Project", "pages": ["latest/roadmap"] }
+        ]
+      },
+      {
+        "tab": "SDK",
+        "groups": [
+          { "group": "Python", "pages": ["latest/sdk/overview", "latest/sdk/integrations", "latest/sdk/sessions", "latest/sdk/custom-spans", "latest/sdk/prompts"] },
+          { "group": "Other languages", "pages": ["latest/sdk/opentelemetry"] }
+        ]
+      },
+      {
+        "tab": "API reference",
+        "groups": [{ "group": "HTTP API", "pages": ["latest/api-reference/ingest", "latest/api-reference/prompts", "latest/api-reference/operations"] }]
+      }
+    ]
+  }
+}

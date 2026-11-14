@@ -1,0 +1,38 @@
+---
+title: Prompt hub
+description: Version prompts in Tracely and fetch them at runtime.
+---
+
+Keeping prompts in Tracely lets you change wording without a deploy, see what changed and who changed it, and pin a known-good version.
+
+## Create a prompt
+
+On **Prompts**, give it a name (lowercase letters, digits, dots, dashes, underscores), the text, and optionally a description and intended model. Mark variables with double braces:
+
+```
+You are a support agent for {{company}}.
+Reply to this ticket in under 100 words:
+
+{{ticket}}
+```
+
+## Versions
+
+Every save creates a new version. Versions are never edited or deleted individually, so a pinned version always returns the same text. Open a prompt to browse versions and start a new one from any of them.
+
+## Use it in code
+
+```python
+import tracely
+
+prompt = tracely.get_prompt("support-reply")             # latest
+prompt = tracely.get_prompt("support-reply", version=2)  # pinned
+
+text = prompt.compile(company="Northwind", ticket=ticket_text)
+```
+
+`compile` raises if a variable is missing. The SDK caches each prompt for 60 seconds and falls back to the cached copy if Tracely is unreachable. See [Prompts in the SDK](/latest/sdk/prompts) and the [HTTP API](/latest/api-reference/prompts).
+
+<Note>
+Unpinned code picks up a new version within a minute of saving. Pin a version in production if you want changes to go through a deploy.
+</Note>

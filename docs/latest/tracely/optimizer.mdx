@@ -1,0 +1,28 @@
+---
+title: Optimizer
+description: Savings recommendations measured from your own traffic.
+---
+
+The optimizer analyses model calls in the selected range and reports where money could be saved. Each figure is measured in the range, then scaled to a 30-day month. Each recommendation states the assumption behind its estimate and links to the calls it is based on.
+
+Recommendations can overlap (a repeated prompt may also be a short call on a large model), so the headline total is an upper bound.
+
+## What it looks for
+
+| Recommendation | Trigger | Estimate |
+|---|---|---|
+| Route short, simple calls to a smaller model | Successful calls with at most 1,500 input and 200 output tokens, on a model whose price-list entry names a cheaper alternative; at least 20 such calls | The same tokens repriced at the smaller model |
+| Cache answers to repeated prompts | The same prompt sent to the same model more than once | The cost of every repeat |
+| Turn on prompt caching | At least 10 calls of 1,024 or more input tokens whose first 2,000 characters are identical | Half the input is the shared opening, billed 50% cheaper |
+| Stop paying for calls that fail | Calls that ended in an error | Their recorded cost |
+| Trim oversized context | At least 10 calls with 6,000 or more input tokens and at least 20 times more input than output | 30% of input removed |
+
+## Using the results
+
+These are leads, not guarantees. Before switching a model, compare answers on a sample of real prompts. Before caching, confirm the answer should be the same for every user who sends the prompt.
+
+The cheaper alternative for each model is the `cheaper` field in `pricing.json`.
+
+## Needs content capture
+
+Repeated-prompt and prompt-opening detection compare prompt text, so they find nothing when the SDK runs with `capture_content=False`.

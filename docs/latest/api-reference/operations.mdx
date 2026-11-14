@@ -1,0 +1,27 @@
+---
+title: Operations
+description: Health check and on-demand alert evaluation.
+---
+
+## Health
+
+```
+GET /api/health
+```
+
+No authentication. Returns `200 {"status":"ok","clickhouse":true}` when ClickHouse answers, and `503 {"status":"degraded","clickhouse":false}` when it does not. Use it for container and load-balancer health checks.
+
+## Evaluate alerts
+
+```
+POST /api/cron/evaluate
+Authorization: Bearer <TRACELY_CRON_SECRET>
+```
+
+Checks every budget and looks for anomalies in the last six hours, sending any new alerts. Returns the number sent:
+
+```json
+{ "fired": 2 }
+```
+
+The endpoint is disabled (always `401`) unless `TRACELY_CRON_SECRET` is set. Calling it repeatedly is safe: each condition alerts once. See [Alerts](/latest/tracely/alerts#scheduling-it-yourself).

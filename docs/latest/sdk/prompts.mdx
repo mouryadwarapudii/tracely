@@ -1,0 +1,40 @@
+---
+title: Prompts in the SDK
+description: Fetch and fill versioned prompts.
+---
+
+```python
+prompt = tracely.get_prompt("support-reply")
+text = prompt.compile(company="Northwind", ticket="Where is my invoice?")
+```
+
+## `get_prompt(name, version=None, cache_seconds=60, timeout=5)`
+
+Returns a `Prompt`:
+
+| Field | Type | |
+|---|---|---|
+| `name` | `str` | |
+| `version` | `int` | The version returned |
+| `template` | `str` | Text with `{{variable}}` placeholders |
+| `model` | `str` | Intended model, or empty |
+| `variables` | `list[str]` | Placeholder names found in the template |
+
+## `Prompt.compile(**values)`
+
+Replaces each placeholder. Raises `tracely.prompts.PromptError` listing any missing variable. Extra values are ignored.
+
+## Caching and failures
+
+- Each `(name, version)` is cached in memory for `cache_seconds`.
+- If Tracely cannot be reached and a cached copy exists, the cached copy is returned, however old.
+- If there is no cached copy, or the prompt or version does not exist, `PromptError` is raised. Keep a fallback for prompts your app cannot run without:
+
+```python
+try:
+    system = tracely.get_prompt("support-reply").compile(company="Northwind", ticket=ticket)
+except tracely.prompts.PromptError:
+    system = DEFAULT_SUPPORT_PROMPT.format(ticket=ticket)
+```
+
+`tracely.init()` must run first so the SDK knows the endpoint and key.

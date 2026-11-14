@@ -1,0 +1,26 @@
+---
+title: Costs
+description: See where spend goes.
+---
+
+**Costs** covers the selected time range and environment.
+
+- **Spend**, **projected per month** (the range's rate scaled to 30 days), **average per call**, and input and output tokens.
+- **Spend over time**, stacked by the top four models with the rest as "Other".
+- **By model**: spend, share, calls, cost per call, tokens, p95 latency, and error rate.
+- **By service**, **by user**, and **by provider**.
+
+Every model, service, and user links to the matching traces.
+
+## Per-user cost
+
+User breakdowns need a user ID on the spans. With the SDK:
+
+```python
+with tracely.session(user_id="user-7"):
+    ...
+```
+
+## Where the numbers come from
+
+See [How cost is computed](/latest/concepts#how-cost-is-computed). To change a price, edit `src/client/src/constants/pricing.json` and rebuild. The current list is shown under **Settings**.

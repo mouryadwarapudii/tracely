@@ -1,0 +1,62 @@
+---
+title: Python SDK
+description: Install, initialise, and configure the Tracely SDK.
+---
+
+## Install
+
+```bash
+pip install -e sdk/python      # from the repository
+```
+
+Requires Python 3.9 or newer.
+
+## Initialise
+
+Call `init` once, before the first model call:
+
+```python
+import tracely
+
+tracely.init(
+    api_key="tr_...",
+    endpoint="http://localhost:3000",
+    service_name="checkout-api",
+    environment="production",
+)
+```
+
+Installed, supported client libraries are patched automatically. See [Integrations](/latest/sdk/integrations).
+
+## Options
+
+| Argument | Environment variable | Default | Purpose |
+|---|---|---|---|
+| `api_key` | `TRACELY_API_KEY` | none | Key from Settings |
+| `endpoint` | `TRACELY_ENDPOINT` | `http://localhost:3000` | Base URL of your Tracely instance |
+| `service_name` | `TRACELY_SERVICE_NAME`, `OTEL_SERVICE_NAME` | `default` | Name shown for this app |
+| `environment` | `TRACELY_ENVIRONMENT` | `default` | Deployment environment |
+| `capture_content` | `TRACELY_CAPTURE_CONTENT` | `true` | Record prompts and responses |
+| `instrument` | | all installed | List of libraries to patch; `[]` for none |
+| `set_global` | | `False` | Also register as the global OpenTelemetry provider |
+| `batch` | | `True` | Export in background batches; `False` exports each span as it ends |
+
+## Privacy
+
+With `capture_content=False` the SDK sends model, tokens, latency, and errors, and no prompt or response text. Cost tracking, anomalies, and budgets work unchanged; search over prompts and two optimizer checks do not.
+
+## Short-lived processes
+
+Spans are exported in the background. Before a script or serverless handler exits:
+
+```python
+tracely.flush()
+```
+
+## Failure behaviour
+
+The SDK never raises into your code. If a library changes in a way the patch does not understand, the call proceeds untraced. If Tracely is unreachable, spans are dropped after the exporter's retries and your application is unaffected.
+
+## Existing OpenTelemetry setup
+
+By default the SDK keeps its own tracer provider and leaves the global one alone. Pass `set_global=True` to send spans from your other OpenTelemetry instrumentation to Tracely as well.

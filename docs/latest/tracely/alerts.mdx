@@ -1,0 +1,39 @@
+---
+title: Alerts
+description: Send budget and anomaly alerts to Slack or a webhook.
+---
+
+## Add a channel
+
+On **Alerts**, add a channel and select **Send test**.
+
+| Type | URL | Payload |
+|---|---|---|
+| Slack | A Slack incoming-webhook URL | A message with the title, summary, and a link |
+| Webhook | Any HTTP(S) endpoint | JSON, below |
+
+```json
+{
+  "id": "9eca5d6a-79df-4418-b0da-84f31ca7851b",
+  "kind": "anomaly",
+  "severity": "critical",
+  "title": "Spend at 180× the usual level",
+  "body": "Spend peaked at $22.51 per hour against a typical $0.125, for 3 hours. 100% of the increase came from model claude-opus-4.",
+  "url": "http://localhost:3000/anomalies",
+  "created_at": "2026-11-13T11:47:12.431Z"
+}
+```
+
+`kind` is `budget` or `anomaly`; `severity` is `warning` or `critical`. A delivery counts as successful on any 2xx response within 10 seconds. Failed deliveries are not retried.
+
+## When alerts fire
+
+Tracely checks every five minutes. Each condition alerts once: a budget once per period and status, an anomaly once per incident. **Check now** runs the check immediately.
+
+**History** lists every alert and how many channels received it. Alerts are recorded even with no channel configured.
+
+## Scheduling it yourself
+
+The built-in timer runs inside the app process. To drive checks from your own scheduler, set `TRACELY_ALERT_INTERVAL_SECONDS=0` and `TRACELY_CRON_SECRET`, then call [`POST /api/cron/evaluate`](/latest/api-reference/operations). Do this if you run more than one app replica, so alerts are evaluated once.
+
+Set `TRACELY_PUBLIC_URL` so links in alerts point at your deployment.

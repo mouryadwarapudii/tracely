@@ -1,0 +1,36 @@
+---
+title: Traces
+description: Find a request and see everything that happened inside it.
+---
+
+A trace is one request or agent run. **Traces** lists them newest first for the selected time range and environment.
+
+## Find a trace
+
+| Control | Matches |
+|---|---|
+| Search | Text in span names, prompts, and responses, or an exact trace ID |
+| Status | Traces with at least one failed span, or with none |
+| Model | Traces that called the model |
+| Service | Traces from the service |
+
+Links elsewhere in Tracely (a model on Costs, an incident on Anomalies) open this page already filtered.
+
+## Read a trace
+
+Opening a trace shows its duration, span count, model calls, tokens, and cost, then the **timeline**: one row per span, indented under its parent and drawn to scale. Colour marks the span type; a red outline and icon mark a failure.
+
+Select a span to see:
+
+- the error message, if it failed
+- model, provider, token counts, and cost for model calls
+- **Input** and **Output** as a conversation
+- every other attribute the span carried
+
+If the trace belongs to a session, **Replay session** opens it in [session replay](/latest/tracely/sessions).
+
+## Nothing showing?
+
+- Widen the time range. The default is 24 hours.
+- Check the environment filter.
+- Confirm the app is sending: an SDK with a wrong or revoked key gets `401` from the ingest endpoint. Short scripts must call `tracely.flush()` before exiting.

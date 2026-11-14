@@ -1,0 +1,27 @@
+---
+title: Configuration
+description: Environment variables read by the Tracely app.
+---
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `TRACELY_SECRET` | generated and stored in the data directory | Signs session cookies. Set it explicitly in production. |
+| `TRACELY_CLICKHOUSE_URL` | `http://127.0.0.1:8123` | ClickHouse HTTP endpoint |
+| `TRACELY_CLICKHOUSE_USER` | `default` | |
+| `TRACELY_CLICKHOUSE_PASSWORD` | empty | |
+| `TRACELY_CLICKHOUSE_DATABASE` | `tracely` | Created if missing |
+| `TRACELY_RETENTION_DAYS` | `90` | Telemetry TTL. Applied when the table is created; changing it later needs an `ALTER TABLE ... MODIFY TTL`. |
+| `TRACELY_DATA_DIR` | `./data` (`/app/data` in Docker) | Where the SQLite file lives |
+| `TRACELY_PUBLIC_URL` | `http://localhost:3000` | Base URL used in alert links and shown in Settings |
+| `TRACELY_ALERT_INTERVAL_SECONDS` | `300` | How often budgets and anomalies are checked. `0` turns the built-in timer off. |
+| `TRACELY_CRON_SECRET` | unset | Enables `POST /api/cron/evaluate` with this bearer token |
+| `TRACELY_INSECURE_COOKIES` | unset | Set to `1` to allow session cookies over plain HTTP on a non-localhost address |
+| `PORT` | `3000` | Listen port |
+
+## Price list
+
+Model prices live in `src/client/src/constants/pricing.json` and are compiled into the app. Edit and rebuild to change them.
+
+## Accounts
+
+The first visitor creates the owner account. Sign-up closes after that; inviting more people is on the [roadmap](/latest/roadmap). To reset, stop the app and delete `tracely.db` in the data directory. This also deletes API keys, budgets, channels, and prompts, and leaves telemetry in place.

@@ -1,0 +1,31 @@
+---
+title: Sessions and replay
+description: Group related traces and step through them in order.
+---
+
+A session is every trace that shares a session ID: the turns of a conversation, or the runs of one task. Set it with the SDK:
+
+```python
+with tracely.session("conversation-42", user_id="user-7"):
+    ...
+```
+
+or set the `session.id` attribute yourself.
+
+**Sessions** lists them with length, turns, model and tool calls, cost, and whether anything failed.
+
+## Session replay
+
+Replay reduces a session to its meaningful steps (model calls, tool calls, retrievals, embeddings) in time order and reveals them one at a time.
+
+| Part | What it shows |
+|---|---|
+| Controls | Play, pause, previous, next, and 1×, 2×, 4× speed |
+| Scrubber | One bar per step, coloured by type, with a gap between turns. Select a bar to jump to it. |
+| Counters | Elapsed time, tokens so far, and cost so far against the session total |
+| Transcript | The conversation as it unfolded: the user's message, the model's reply with model, latency, tokens, and cost, and tool and retrieval steps between them |
+| Step detail | The full input, output, and attributes of the current step |
+
+Keyboard: **←** and **→** step, **space** plays or pauses.
+
+Use it to see where an agent looped, which step failed, or which turn made a conversation expensive.

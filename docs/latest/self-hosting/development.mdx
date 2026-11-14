@@ -1,0 +1,52 @@
+---
+title: Local development
+description: Run Tracely from source without Docker.
+---
+
+Requirements: Node 22 or newer and Python 3.9 or newer.
+
+```bash
+pip install chdb
+./scripts/dev.sh
+```
+
+`dev.sh` starts two things:
+
+1. `scripts/dev-clickhouse.py`, a small server that speaks the part of the ClickHouse HTTP interface Tracely uses, backed by chDB (ClickHouse as an embedded library). It is a development stand-in, not a database server.
+2. The Next.js dev server on http://localhost:3000.
+
+State goes in `.tracely-dev/`. Delete that directory to start fresh.
+
+If you have a ClickHouse server already, skip the stand-in:
+
+```bash
+cd src/client
+npm install
+TRACELY_CLICKHOUSE_URL=http://localhost:8123 npm run dev
+```
+
+## Demo data
+
+```bash
+cd src/client
+TRACELY_API_KEY=tr_... npm run seed            # 14 days
+TRACELY_API_KEY=tr_... npm run seed -- --days 30
+```
+
+The generator sends four workloads through the real ingest endpoint and plants three incidents: a spend spike a few hours ago, slow responses about 30 hours ago, and an error burst about three days ago.
+
+## Checks
+
+```bash
+cd src/client
+npm run typecheck
+npm test
+npm run build
+
+pip install -e "../../sdk/python[dev]"
+pytest ../../sdk/python
+```
+
+## Where things are
+
+See `src/README.md` for a map of the app, and `CONTRIBUTING.md` for conventions.

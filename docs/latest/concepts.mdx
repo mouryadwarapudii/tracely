@@ -1,0 +1,69 @@
+---
+title: Concepts
+description: The data model, and the span attributes Tracely reads.
+---
+
+## Data model
+
+| Term | Meaning |
+|---|---|
+| **Span** | One operation with a start, a duration, and attributes: a model call, a tool call, a retrieval, or any step you trace |
+| **Trace** | All spans from one request or agent run, linked by parent and child |
+| **Session** | Traces that share a session ID: a conversation, or one user's multi-step task |
+| **Service** | The application that sent the span (`service.name`) |
+| **Environment** | Where it ran, such as production or staging (`deployment.environment.name`) |
+
+## Span types
+
+Tracely classifies each span from `gen_ai.operation.name`:
+
+| Type | Operation names | Shown as |
+|---|---|---|
+| Model call | `chat`, `text_completion`, `generate_content` | Blue |
+| Embedding | `embeddings` | Yellow |
+| Tool | `execute_tool`, or any span with `gen_ai.tool.name` | Orange |
+| Agent | `invoke_agent`, `create_agent` | Violet |
+| Retrieval | any span with `db.system.name` or `db.system` | Green |
+| Other | everything else | Grey |
+
+Costs, the optimizer, and anomaly detection count model calls and embeddings.
+
+## Attributes Tracely reads
+
+Where two names are listed, the first is the current OpenTelemetry convention and the second is an older name that is still accepted.
+
+| Column | Attribute |
+|---|---|
+| Provider | `gen_ai.provider.name`, `gen_ai.system` |
+| Model | `gen_ai.response.model`, `gen_ai.request.model` |
+| Input tokens | `gen_ai.usage.input_tokens`, `gen_ai.usage.prompt_tokens` |
+| Output tokens | `gen_ai.usage.output_tokens`, `gen_ai.usage.completion_tokens` |
+| Cost | `gen_ai.usage.cost` if present; otherwise computed |
+| Input | `gen_ai.input.messages`, `gen_ai.prompt`, `gen_ai.tool.call.arguments`, `tracely.input` |
+| Output | `gen_ai.output.messages`, `gen_ai.completion`, `gen_ai.tool.call.result`, `tracely.output` |
+| Session | `session.id`, `gen_ai.conversation.id` |
+| User | `user.id`, `enduser.id` |
+| Service | resource `service.name` |
+| Environment | resource `deployment.environment.name`, `deployment.environment` |
+
+Every other attribute is kept and shown under **Attributes** on the span.
+
+## How cost is computed
+
+If a span reports `gen_ai.usage.cost`, Tracely uses it. Otherwise:
+
+```
+cost = (input_tokens × input_price + output_tokens × output_price) ÷ 1,000,000
+```
+
+Prices come from `src/client/src/constants/pricing.json`, in US dollars per million tokens. A model matches the longest price-list entry it starts with, so `gpt-4o-2024-08-06` uses the `gpt-4o` price. Models with no match cost zero.
+
+<Warning>
+The bundled prices are defaults. Providers change prices, so check the list against your provider's current pricing before relying on cost figures. Cost is computed when a span arrives; changing a price does not reprice stored spans.
+</Warning>
+
+## Limits
+
+- Prompt and response text is truncated at 64,000 characters per span, and other attribute values at 4,000.
+- One request to the ingest endpoint can carry up to 16 MB.
+- Telemetry is deleted after `TRACELY_RETENTION_DAYS` (90 by default).

@@ -1,0 +1,34 @@
+---
+title: Anomalies
+description: Automatic detection of unusual spend, latency, and error rates.
+---
+
+Tracely watches three measures by the hour, with nothing to configure:
+
+- **Spend** per hour
+- **p95 latency** of model calls
+- **Error rate** of model calls
+
+## How detection works
+
+Each hour is compared with the 168 hours (seven days) before it. An hour is flagged when all three hold:
+
+1. It is more than 3.5 robust standard deviations above the median of that history (median and MAD, which a past spike does not distort the way a mean would).
+2. It is well above the history's own busy hours: twice the 95th percentile for spend and error rate, 1.5 times for latency.
+3. It clears a minimum absolute change: $0.05 per hour, 500 ms, or 5 percentage points.
+
+Latency and error rate are only evaluated for hours with at least 10 calls. Detection starts once there are 24 hours of history.
+
+Consecutive flagged hours merge into one **incident**, marked critical when spend or latency reaches four times normal or the error rate reaches 25%.
+
+## Finding the cause
+
+For each incident Tracely compares every model, service, and user with its own normal level over the same seven days, and measures how much of the increase each one accounts for. If one accounts for at least half, the incident names it:
+
+> Spend peaked at $22.51 per hour against a typical $0.125, for 3 hours. 100% of the increase came from model claude-opus-4.
+
+**View traces** opens the traces behind the incident, filtered to that cause.
+
+## Tuning
+
+The thresholds are constants at the top of `src/client/src/lib/anomalies.ts`.

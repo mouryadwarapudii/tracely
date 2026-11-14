@@ -1,0 +1,27 @@
+---
+title: Introduction
+description: What Tracely is and what you can do with it.
+---
+
+Tracely shows you what your LLM application is doing: every model call, tool call, and retrieval, with its prompt, response, tokens, latency, and cost. It then goes a step further and tells you what to act on: where money is being wasted, when something unusual is happening, and when a budget is about to be passed.
+
+It is self-hosted and OpenTelemetry-native. Applications send standard OTLP traces; Tracely reads the GenAI semantic conventions and stores spans in ClickHouse.
+
+## What you get
+
+| Page | Use it to |
+|---|---|
+| [Traces](/latest/tracely/traces) | Debug a request: see the span waterfall, read prompts and responses, find failures |
+| [Sessions](/latest/tracely/sessions) | Replay a conversation or agent run step by step |
+| [Costs](/latest/tracely/costs) | See spend by model, service, user, and provider |
+| [Optimizer](/latest/tracely/optimizer) | Get savings recommendations measured from your traffic |
+| [Budgets](/latest/tracely/budgets) | Cap spend and forecast the period |
+| [Anomalies](/latest/tracely/anomalies) | Catch spend, latency, and error spikes without setting thresholds |
+| [Alerts](/latest/tracely/alerts) | Send budget and anomaly alerts to Slack or a webhook |
+| [Prompts](/latest/tracely/prompts) | Version prompts and fetch them at runtime |
+
+## Next steps
+
+- [Quickstart](/latest/quickstart): run Tracely and send a first trace in about five minutes.
+- [Concepts](/latest/concepts): the data model and the attributes Tracely reads.
+- [Roadmap](/latest/roadmap): what is and is not built in this version.

@@ -1,0 +1,45 @@
+# Tracely: ClickHouse for telemetry, one container for the dashboard and ingest API.
+#   cp env.example .env   # set the secrets
+#   docker compose up -d --build
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:25.8
+    environment:
+      CLICKHOUSE_USER: ${TRACELY_CLICKHOUSE_USER:-tracely}
+      CLICKHOUSE_PASSWORD: ${TRACELY_CLICKHOUSE_PASSWORD:?set TRACELY_CLICKHOUSE_PASSWORD in .env}
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+    ulimits:
+      nofile: { soft: 262144, hard: 262144 }
+    healthcheck:
+      test: ["CMD-SHELL", "clickhouse-client --user $$CLICKHOUSE_USER --password $$CLICKHOUSE_PASSWORD --query 'SELECT 1' || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+    # No ports published: only the tracely service needs to reach ClickHouse.
+
+  tracely:
+    build: ./src/client
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    environment:
+      TRACELY_CLICKHOUSE_URL: http://clickhouse:8123
+      TRACELY_CLICKHOUSE_USER: ${TRACELY_CLICKHOUSE_USER:-tracely}
+      TRACELY_CLICKHOUSE_PASSWORD: ${TRACELY_CLICKHOUSE_PASSWORD}
+      TRACELY_SECRET: ${TRACELY_SECRET:?set TRACELY_SECRET in .env}
+      TRACELY_PUBLIC_URL: ${TRACELY_PUBLIC_URL:-http://localhost:3000}
+      TRACELY_RETENTION_DAYS: ${TRACELY_RETENTION_DAYS:-90}
+      TRACELY_CRON_SECRET: ${TRACELY_CRON_SECRET:-}
+      TRACELY_INSECURE_COOKIES: ${TRACELY_INSECURE_COOKIES:-}
+    volumes:
+      - tracely-data:/app/data
+    ports:
+      - "${TRACELY_PORT:-3000}:3000"
+    restart: unless-stopped
+
+volumes:
+  clickhouse-data:
+  tracely-data:

@@ -1,0 +1,34 @@
+---
+title: Get a prompt
+description: Fetch a prompt version over HTTP.
+---
+
+```
+GET /api/v1/prompts/{name}
+GET /api/v1/prompts/{name}?version=2
+```
+
+Authenticate with `Authorization: Bearer tr_...`. Without `version`, the latest version is returned.
+
+```bash
+curl http://localhost:3000/api/v1/prompts/support-reply \
+  -H "Authorization: Bearer $TRACELY_API_KEY"
+```
+
+```json
+{
+  "name": "support-reply",
+  "version": 2,
+  "template": "You are a support agent for {{company}}. Be warm and brief.\nReply to this ticket in under 100 words:\n\n{{ticket}}",
+  "model": "gpt-4o-mini",
+  "variables": ["company", "ticket"]
+}
+```
+
+| Status | Meaning |
+|---|---|
+| `200` | Found |
+| `401` | Missing, unknown, or revoked key |
+| `404` | No prompt with that name, or no such version. The `error` field says which. |
+
+Prompts are created and versioned in the dashboard; there is no write API in this version.

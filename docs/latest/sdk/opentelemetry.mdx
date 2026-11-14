@@ -1,0 +1,54 @@
+---
+title: OpenTelemetry (any language)
+description: Send traces to Tracely without the Tracely SDK.
+---
+
+Tracely is an OTLP/HTTP trace receiver. Any OpenTelemetry SDK, Collector, or instrumentation library that emits the GenAI semantic conventions can send to it.
+
+## Environment variables
+
+For SDKs that read the standard variables:
+
+```bash
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:3000
+OTEL_EXPORTER_OTLP_HEADERS=Authorization=Bearer%20tr_...
+OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
+```
+
+## Node.js
+
+```ts
+import { NodeSDK } from "@opentelemetry/sdk-node";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
+
+new NodeSDK({
+  serviceName: "my-app",
+  traceExporter: new OTLPTraceExporter({
+    url: "http://localhost:3000/v1/traces",
+    headers: { Authorization: `Bearer ${process.env.TRACELY_API_KEY}` },
+  }),
+}).start();
+```
+
+## Through a Collector
+
+Use `assets/otel-collector-config.yaml` when apps already export to a Collector or can only speak gRPC.
+
+## What to put on spans
+
+At minimum, for a model call:
+
+```
+gen_ai.operation.name = "chat"
+gen_ai.provider.name  = "openai"
+gen_ai.request.model  = "gpt-4o-mini"
+gen_ai.usage.input_tokens
+gen_ai.usage.output_tokens
+```
+
+The full list, including sessions, users, and content, is in [Concepts](/latest/concepts#attributes-tracely-reads). Other instrumentation libraries that follow these conventions, including OpenLIT's SDKs, should work by pointing their OTLP endpoint and headers at Tracely; this has not been tested against each of them.
+
+## Not supported
+
+- OTLP over gRPC (use a Collector).
+- Metrics and logs signals. Tracely derives its metrics from spans.

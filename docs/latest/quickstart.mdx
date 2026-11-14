@@ -1,0 +1,63 @@
+---
+title: Quickstart
+description: Run Tracely, create a key, and send your first trace.
+---
+
+## 1. Start Tracely
+
+```bash
+git clone <your-repository-url> tracely && cd tracely
+cp env.example .env
+```
+
+Open `.env` and set `TRACELY_SECRET` and `TRACELY_CLICKHOUSE_PASSWORD` (generate each with `openssl rand -hex 32`). Then:
+
+```bash
+docker compose up -d --build
+```
+
+No Docker? See [Development](/latest/self-hosting/development) for a local setup that needs only Node and Python.
+
+## 2. Create the owner account
+
+Open http://localhost:3000. The first visit asks you to create the owner account. It is stored on your server.
+
+## 3. Create an API key
+
+Go to **Settings**, name a key, and select **Create key**. Copy it now: Tracely stores only a hash and cannot show it again.
+
+## 4. Send a trace
+
+```bash
+pip install -e sdk/python openai
+export OPENAI_API_KEY=sk-...
+```
+
+```python
+import tracely
+from openai import OpenAI
+
+tracely.init(api_key="tr_...", endpoint="http://localhost:3000", service_name="quickstart")
+
+client = OpenAI()
+client.chat.completions.create(model="gpt-4o-mini", messages=[{"role": "user", "content": "Hello"}])
+
+tracely.flush()
+```
+
+Open **Traces**. The call is there with its prompt, response, tokens, and cost.
+
+## No provider key yet?
+
+Load two weeks of demo traffic, including a spend spike, a slow period, and an error burst:
+
+```bash
+cd src/client
+npm install
+TRACELY_API_KEY=tr_... npm run seed
+```
+
+## Next
+
+- Group calls into conversations with [sessions](/latest/sdk/sessions).
+- Set a [budget](/latest/tracely/budgets) and connect an [alert channel](/latest/tracely/alerts).

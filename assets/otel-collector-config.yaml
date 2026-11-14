@@ -1,0 +1,24 @@
+# Example OpenTelemetry Collector pipeline that forwards traces to Tracely.
+# Use it when apps already export to a Collector, or when you need gRPC intake
+# (Tracely itself accepts OTLP over HTTP only).
+receivers:
+  otlp:
+    protocols:
+      grpc: { endpoint: 0.0.0.0:4317 }
+      http: { endpoint: 0.0.0.0:4318 }
+
+processors:
+  batch: {}
+
+exporters:
+  otlphttp/tracely:
+    endpoint: ${env:TRACELY_ENDPOINT} # e.g. http://tracely:3000
+    headers:
+      Authorization: Bearer ${env:TRACELY_API_KEY}
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp/tracely]

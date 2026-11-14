@@ -1,0 +1,27 @@
+---
+title: Budgets
+description: Set spending limits and see whether you will stay inside them.
+---
+
+A budget is an amount, a period, and what it applies to.
+
+| Field | Options |
+|---|---|
+| Period | Daily, weekly (from Monday), or monthly. Periods follow the UTC calendar. |
+| Applies to | All spend, or one model, service, user, or environment (exact name as it appears in traces) |
+| Warn at | Percent of the amount that counts as "near limit". Default 80. |
+
+## Status
+
+| Status | Meaning |
+|---|---|
+| On track | Below the warning level, and the forecast is inside the budget |
+| Will exceed | Below the warning level, but the current rate would pass the budget by period end |
+| Near limit | At or above the warning level |
+| Exceeded | Spend has passed the amount |
+
+The **forecast** is spend so far divided by the share of the period elapsed. It is shown once a tenth of the period has passed. On the progress bar, the solid part is spend, the hatched part is the forecast, and the tick marks the warning level.
+
+## Alerts
+
+Each status change away from "On track" alerts once per period, to every channel on [Alerts](/latest/tracely/alerts). Budgets report and alert; they do not block requests.

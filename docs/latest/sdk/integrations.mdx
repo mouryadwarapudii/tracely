@@ -1,0 +1,54 @@
+---
+title: Integrations
+description: Libraries the SDK instruments automatically.
+---
+
+| Library | Calls traced | Sync | Async | Streaming |
+|---|---|---|---|---|
+| `openai` | `chat.completions.create` | Yes | Yes | Yes |
+| | `responses.create` | Yes | Yes | Yes |
+| | `embeddings.create` | Yes | Yes | n/a |
+| `anthropic` | `messages.create` | Yes | Yes | `stream=True` |
+
+Tested against the real client libraries with a fake HTTP transport (`sdk/python/tests`).
+
+## OpenAI
+
+```python
+from openai import OpenAI
+client = OpenAI()
+client.chat.completions.create(model="gpt-4o-mini", messages=[...])
+```
+
+For streamed chat completions OpenAI only reports token usage when asked:
+
+```python
+client.chat.completions.create(..., stream=True, stream_options={"include_usage": True})
+```
+
+Without it the span has latency and content, and no tokens or cost.
+
+OpenAI-compatible providers that are used through the `openai` client (by setting `base_url`) are traced the same way. They are labelled with provider `openai`.
+
+## Anthropic
+
+```python
+from anthropic import Anthropic
+client = Anthropic()
+client.messages.create(model="...", max_tokens=200, messages=[...])
+```
+
+Cached input tokens are added to the input token count, and also recorded separately as `gen_ai.usage.cache_read.input_tokens` and `gen_ai.usage.cache_creation.input_tokens`.
+
+Not yet covered: the `client.messages.stream()` helper. Use `messages.create(stream=True)`, or wrap the call with [`@tracely.trace`](/latest/sdk/custom-spans).
+
+## Choosing what to patch
+
+```python
+tracely.init(..., instrument=["openai"])   # only OpenAI
+tracely.init(..., instrument=[])           # nothing; use decorators or OpenTelemetry directly
+```
+
+## Anything else
+
+Frameworks and providers without an integration can send spans through [OpenTelemetry](/latest/sdk/opentelemetry) directly. More integrations are on the [roadmap](/latest/roadmap).

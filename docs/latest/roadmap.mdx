@@ -1,0 +1,48 @@
+---
+title: Roadmap
+description: What version 0.1 includes, and what comes next.
+---
+
+## In 0.1
+
+- OTLP/HTTP trace ingest (protobuf and JSON) with API keys
+- Overview, Traces with span waterfall and search, Sessions with replay
+- Costs, Optimizer, Budgets
+- Anomaly detection with cause attribution; Slack and webhook alerts
+- Prompt hub with versions and a runtime API
+- Python SDK: OpenAI and Anthropic, sessions, decorators, prompts
+- Docker Compose deployment; light and dark themes
+
+## Next
+
+Ordered by how much each one blocks real use as a product.
+
+| Area | Item | Notes |
+|---|---|---|
+| Accounts | Invite teammates, roles, multiple projects | The schema carries `project_id` everywhere; the UI and permissions are missing |
+| Accounts | SSO (Google, GitHub, OIDC) | |
+| Scale | Queue in front of ClickHouse, separate ingest service | See [Architecture](/latest/architecture#trade-offs-in-this-version) |
+| Scale | Postgres for metadata, multiple app replicas | |
+| SDKs | TypeScript SDK | OpenTelemetry works today |
+| SDKs | More Python integrations: Google GenAI, Bedrock, LiteLLM, LangChain, LlamaIndex, vector databases | |
+| Quality | Evaluations: LLM-as-judge, programmatic checks, human feedback | |
+| Quality | Guardrails in the SDK: prompt injection, sensitive topics | |
+| Build | Playground to compare models side by side on cost, latency, and output | |
+| Build | Prompt labels (production, staging) and a write API | |
+| Spend | Price list editing in the UI, cached-token pricing, per-customer pricing | |
+| Alerts | Email channel, delivery retries, custom alert rules | |
+| Signals | Metrics and logs intake, gRPC intake, GPU monitoring | |
+| Data | Custom dashboards, CSV export, configurable retention per project | |
+| Commercial | Usage metering and billing for a hosted offering, audit log | |
+
+## How Tracely relates to OpenLIT
+
+Tracely was designed after studying [OpenLIT](https://github.com/openlit/openlit), an Apache-2.0 project in the same space, and follows a similar repository layout. Its code is written independently.
+
+**Both have** tracing on OpenTelemetry, cost tracking, and a prompt hub.
+
+**Tracely 0.1 adds** session replay, a cost optimizer, threshold-free anomaly detection with cause attribution, and budgets with Slack and webhook alerts in the base product.
+
+**OpenLIT has, and Tracely does not yet:** evaluations, guardrails, a secrets vault, a model playground, a rule engine, TypeScript and Go SDKs, 70+ integrations, GPU monitoring, and a CLI for coding agents.
+
+This comparison reflects OpenLIT's README as of November 2026.

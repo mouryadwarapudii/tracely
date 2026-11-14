@@ -1,0 +1,40 @@
+---
+title: Tracing your own code
+description: Decorators for steps, tools, and agents.
+---
+
+Automatic instrumentation covers model calls. Decorators add the structure around them.
+
+```python
+import tracely
+
+@tracely.tool
+def search_orders(customer_id: str) -> list:
+    ...
+
+@tracely.agent(name="support-agent")
+def handle(ticket: str) -> str:
+    orders = search_orders("c-19")           # child span: tool
+    return client.chat.completions.create(...)  # child span: model call
+
+@tracely.trace
+def rerank(documents: list) -> list:
+    ...
+```
+
+| Decorator | Span | Shown as |
+|---|---|---|
+| `@tracely.agent` | `invoke_agent <name>` | Agent; the parent row of a run |
+| `@tracely.tool` | `execute_tool <name>` | Tool step in the timeline and in replay |
+| `@tracely.trace` | `<name>` | Other |
+
+All three work on sync and async functions, and take an optional `name=`; the default is the function name.
+
+## What is recorded
+
+- Arguments as input and the return value as output, serialised to JSON and truncated at 32,000 characters. Skipped when `capture_content=False`.
+- Exceptions: the span is marked failed with the exception type and message, and the exception is re-raised unchanged.
+
+## Why it matters
+
+Without an agent or trace span around them, each model call is its own single-span trace. With one, a run appears as a single trace with a waterfall.

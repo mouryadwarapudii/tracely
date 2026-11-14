@@ -1,0 +1,38 @@
+---
+title: Sessions and users
+description: Tie spans to a conversation and a user.
+---
+
+```python
+with tracely.session("conversation-42", user_id="user-7"):
+    client.chat.completions.create(...)
+```
+
+Every span started inside the block gets `session.id` and `user.id`. This drives [Sessions and replay](/latest/tracely/sessions), per-user [costs](/latest/tracely/costs), user-scoped [budgets](/latest/tracely/budgets), and cause-finding in [anomalies](/latest/tracely/anomalies).
+
+## In a web app
+
+Open the session where the request is handled, using an ID that is stable across the conversation's turns:
+
+```python
+@app.post("/chat")
+def chat(body: ChatRequest, user: User):
+    with tracely.session(body.conversation_id, user_id=user.id):
+        return run_chat(body.message)
+```
+
+## Extra attributes
+
+Keyword arguments become span attributes:
+
+```python
+with tracely.session("conversation-42", user_id="user-7", plan="enterprise", feature="summaries"):
+    ...
+```
+
+## Behaviour
+
+- Works across `await`: the context follows the task.
+- Blocks nest; inner values override outer ones.
+- `user_id` alone is valid: `with tracely.session(user_id="user-7")`.
+- Use IDs, not names or emails, so personal data stays out of telemetry.

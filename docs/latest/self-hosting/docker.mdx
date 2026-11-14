@@ -1,0 +1,52 @@
+---
+title: Deploy with Docker
+description: Run Tracely and ClickHouse with Docker Compose.
+---
+
+## Start
+
+```bash
+cp env.example .env
+# set TRACELY_SECRET and TRACELY_CLICKHOUSE_PASSWORD (openssl rand -hex 32)
+docker compose up -d --build
+```
+
+This starts two containers:
+
+| Service | Image | Data |
+|---|---|---|
+| `clickhouse` | `clickhouse/clickhouse-server` | `clickhouse-data` volume: all telemetry |
+| `tracely` | built from `src/client` | `tracely-data` volume: accounts, key hashes, budgets, channels, prompts |
+
+The app creates its ClickHouse database and table on first use. ClickHouse is not published to the host.
+
+Check health:
+
+```bash
+curl http://localhost:3000/api/health
+# {"status":"ok","clickhouse":true}
+```
+
+## Production checklist
+
+- Put a reverse proxy with TLS in front and set `TRACELY_PUBLIC_URL` to the public address. Session cookies are HTTPS-only in production; plain HTTP works only on `localhost`.
+- Back up both volumes.
+- Size ClickHouse for your volume. As a rough guide, the bundled image runs comfortably with 4 GB of memory for small workloads.
+- Running more than one `tracely` replica is not supported in this version: metadata is a local SQLite file. See [Architecture](/latest/architecture#trade-offs-in-this-version).
+
+## Upgrade
+
+```bash
+git pull
+docker compose up -d --build
+```
+
+Schema changes are applied automatically at start.
+
+## Use an existing ClickHouse
+
+Remove the `clickhouse` service and point the app at yours with `TRACELY_CLICKHOUSE_URL`, `TRACELY_CLICKHOUSE_USER`, and `TRACELY_CLICKHOUSE_PASSWORD`. The user needs permission to create the database named by `TRACELY_CLICKHOUSE_DATABASE` (default `tracely`).
+
+<Note>
+The Compose file and Dockerfile were written for this release but have not been run in the environment where Tracely was built, which had no Docker daemon. The app itself was verified against an embedded ClickHouse engine. Run `docker compose up` once in a test environment before relying on it.
+</Note>
